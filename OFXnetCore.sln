@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OFXnet", "OFXnet.csproj", "{1B10A16D-B35C-47AB-BE1D-C0889D88F3D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OFXnet.Core", "OFXnet.Core.csproj", "{1B10A16D-B35C-47AB-BE1D-C0889D88F3D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OFXnet.Test", "OFXnet.Test\OFXnet.Test.csproj", "{3E544FD3-3E2B-4E60-A02B-D09A2CB48F1C}"
 EndProject

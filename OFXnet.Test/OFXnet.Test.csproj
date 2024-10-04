@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OFXnet.csproj" />
+    <ProjectReference Include="..\OFXnet.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
