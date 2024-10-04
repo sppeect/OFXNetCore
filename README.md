@@ -1,90 +1,90 @@
-# OFXnet
+# OFXnetCore
 Leitor de Open Financial Exchange Files (OFX)
 
-O formato **OFX (Open Financial Exchange)** é baseado em XML e possui uma série de tags que estruturam os dados financeiros dentro do arquivo. Embora existam muitas tags no OFX, as principais podem ser agrupadas em diferentes seções, como transações bancárias, investimentos, cartões de crédito, etc. Abaixo está uma descrição das principais tags e seu propósito:
+O formato **OFX (Open Financial Exchange)** Ã© baseado em XML e possui uma sÃ©rie de tags que estruturam os dados financeiros dentro do arquivo. Embora existam muitas tags no OFX, as principais podem ser agrupadas em diferentes seÃ§Ãµes, como transaÃ§Ãµes bancÃ¡rias, investimentos, cartÃµes de crÃ©dito, etc. Abaixo estÃ¡ uma descriÃ§Ã£o das principais tags e seu propÃ³sito:
 
 ## Estrutura Geral do OFX
-A estrutura de um arquivo OFX é dividida em várias partes, sendo as principais:
+A estrutura de um arquivo OFX Ã© dividida em vÃ¡rias partes, sendo as principais:
 
-- **Cabeçalho OFX**: Inicia o arquivo OFX e especifica a versão e o tipo de codificação.
-- **Transações bancárias (Banking Transactions)**: Informações sobre a conta e as transações bancárias.
-- **Cartões de crédito**: Informações sobre o cartão de crédito e transações.
-- **Investimentos**: Informações sobre investimentos e portfólios.
+- **CabeÃ§alho OFX**: Inicia o arquivo OFX e especifica a versÃ£o e o tipo de codificaÃ§Ã£o.
+- **TransaÃ§Ãµes bancÃ¡rias (Banking Transactions)**: InformaÃ§Ãµes sobre a conta e as transaÃ§Ãµes bancÃ¡rias.
+- **CartÃµes de crÃ©dito**: InformaÃ§Ãµes sobre o cartÃ£o de crÃ©dito e transaÃ§Ãµes.
+- **Investimentos**: InformaÃ§Ãµes sobre investimentos e portfÃ³lios.
 
 ---
 
-## Cabeçalho do Arquivo OFX
-O cabeçalho OFX é obrigatório e contém metadados sobre o arquivo:
+## CabeÃ§alho do Arquivo OFX
+O cabeÃ§alho OFX Ã© obrigatÃ³rio e contÃ©m metadados sobre o arquivo:
 
-- **`<OFXHEADER>`**: Define a versão do OFX (geralmente 100 ou 200).
-- **`<DATA>`**: Especifica o tipo de dados, geralmente definido como `OFXSGML` para a versão 1.0 ou `OFXXML` para a versão 2.0.
-- **`<VERSION>`**: Define a versão do protocolo OFX.
-- **`<SECURITY>`**: Indica o tipo de segurança (normalmente "NONE").
-- **`<ENCODING>`**: Define a codificação dos dados (geralmente `USASCII` ou `UTF-8`).
+- **`<OFXHEADER>`**: Define a versÃ£o do OFX (geralmente 100 ou 200).
+- **`<DATA>`**: Especifica o tipo de dados, geralmente definido como `OFXSGML` para a versÃ£o 1.0 ou `OFXXML` para a versÃ£o 2.0.
+- **`<VERSION>`**: Define a versÃ£o do protocolo OFX.
+- **`<SECURITY>`**: Indica o tipo de seguranÃ§a (normalmente "NONE").
+- **`<ENCODING>`**: Define a codificaÃ§Ã£o dos dados (geralmente `USASCII` ou `UTF-8`).
 - **`<CHARSET>`**: Define o conjunto de caracteres usados no arquivo.
-- **`<COMPRESSION>`**: Define se os dados estão comprimidos.
-- **`<OLDFILEUID>`**: Identificador único do arquivo anterior (se houver).
-- **`<NEWFILEUID>`**: Identificador único do arquivo atual.
+- **`<COMPRESSION>`**: Define se os dados estÃ£o comprimidos.
+- **`<OLDFILEUID>`**: Identificador Ãºnico do arquivo anterior (se houver).
+- **`<NEWFILEUID>`**: Identificador Ãºnico do arquivo atual.
 
 ---
 
-## Tags de Transações Bancárias (Banking)
-Essas tags são usadas para informações sobre contas bancárias e transações:
+## Tags de TransaÃ§Ãµes BancÃ¡rias (Banking)
+Essas tags sÃ£o usadas para informaÃ§Ãµes sobre contas bancÃ¡rias e transaÃ§Ãµes:
 
-- **`<BANKMSGSRSV1>`**: Seção para mensagens relacionadas ao banco.
-- **`<STMTTRNRS>`**: Usado para encapsular uma resposta de transação de extrato bancário.
-- **`<STMTRS>`**: Contém os detalhes de um extrato bancário.
+- **`<BANKMSGSRSV1>`**: SeÃ§Ã£o para mensagens relacionadas ao banco.
+- **`<STMTTRNRS>`**: Usado para encapsular uma resposta de transaÃ§Ã£o de extrato bancÃ¡rio.
+- **`<STMTRS>`**: ContÃ©m os detalhes de um extrato bancÃ¡rio.
   - **`<CURDEF>`**: Define a moeda (por exemplo, USD).
-  - **`<BANKACCTFROM>`**: Contém informações sobre a conta bancária de origem.
-    - **`<BANKID>`**: Número do banco (ABA/Routing number nos EUA).
-    - **`<ACCTID>`**: Número da conta.
+  - **`<BANKACCTFROM>`**: ContÃ©m informaÃ§Ãµes sobre a conta bancÃ¡ria de origem.
+    - **`<BANKID>`**: NÃºmero do banco (ABA/Routing number nos EUA).
+    - **`<ACCTID>`**: NÃºmero da conta.
     - **`<ACCTTYPE>`**: Tipo de conta (`CHECKING`, `SAVINGS`, etc.).
-  - **`<BANKTRANLIST>`**: Lista de transações bancárias.
-    - **`<DTSTART>`**: Data de início do período de transações.
-    - **`<DTEND>`**: Data de término do período de transações.
-    - **`<STMTTRN>`**: Representa uma transação única.
-      - **`<TRNTYPE>`**: Tipo de transação (`CREDIT`, `DEBIT`, etc.).
-      - **`<DTPOSTED>`**: Data de postagem da transação.
-      - **`<TRNAMT>`**: Quantidade da transação (positivo para créditos, negativo para débitos).
-      - **`<FITID>`**: Identificador único da transação.
-      - **`<CHECKNUM>`**: Número do cheque (se aplicável).
-      - **`<MEMO>`**: Descrição ou memo da transação.
+  - **`<BANKTRANLIST>`**: Lista de transaÃ§Ãµes bancÃ¡rias.
+    - **`<DTSTART>`**: Data de inÃ­cio do perÃ­odo de transaÃ§Ãµes.
+    - **`<DTEND>`**: Data de tÃ©rmino do perÃ­odo de transaÃ§Ãµes.
+    - **`<STMTTRN>`**: Representa uma transaÃ§Ã£o Ãºnica.
+      - **`<TRNTYPE>`**: Tipo de transaÃ§Ã£o (`CREDIT`, `DEBIT`, etc.).
+      - **`<DTPOSTED>`**: Data de postagem da transaÃ§Ã£o.
+      - **`<TRNAMT>`**: Quantidade da transaÃ§Ã£o (positivo para crÃ©ditos, negativo para dÃ©bitos).
+      - **`<FITID>`**: Identificador Ãºnico da transaÃ§Ã£o.
+      - **`<CHECKNUM>`**: NÃºmero do cheque (se aplicÃ¡vel).
+      - **`<MEMO>`**: DescriÃ§Ã£o ou memo da transaÃ§Ã£o.
 
 ---
 
-## Tags de Cartão de Crédito
-As tags para cartões de crédito são semelhantes às bancárias, com algumas diferenças específicas:
+## Tags de CartÃ£o de CrÃ©dito
+As tags para cartÃµes de crÃ©dito sÃ£o semelhantes Ã s bancÃ¡rias, com algumas diferenÃ§as especÃ­ficas:
 
-- **`<CREDITCARDMSGSRSV1>`**: Seção para mensagens relacionadas a cartões de crédito.
-- **`<CCSTMTTRNRS>`**: Encapsula a resposta da transação do cartão de crédito.
-- **`<CCSTMTRS>`**: Contém os detalhes de um extrato de cartão de crédito.
+- **`<CREDITCARDMSGSRSV1>`**: SeÃ§Ã£o para mensagens relacionadas a cartÃµes de crÃ©dito.
+- **`<CCSTMTTRNRS>`**: Encapsula a resposta da transaÃ§Ã£o do cartÃ£o de crÃ©dito.
+- **`<CCSTMTRS>`**: ContÃ©m os detalhes de um extrato de cartÃ£o de crÃ©dito.
   - **`<CURDEF>`**: Define a moeda.
-  - **`<CCACCTFROM>`**: Contém informações sobre a conta do cartão de crédito.
-    - **`<ACCTID>`**: Número da conta do cartão de crédito.
-  - **`<BANKTRANLIST>`**: Lista de transações de cartão de crédito, semelhante às transações bancárias.
+  - **`<CCACCTFROM>`**: ContÃ©m informaÃ§Ãµes sobre a conta do cartÃ£o de crÃ©dito.
+    - **`<ACCTID>`**: NÃºmero da conta do cartÃ£o de crÃ©dito.
+  - **`<BANKTRANLIST>`**: Lista de transaÃ§Ãµes de cartÃ£o de crÃ©dito, semelhante Ã s transaÃ§Ãµes bancÃ¡rias.
 
 ---
 
 ## Tags de Investimentos
-Essas tags são usadas para informações sobre investimentos e portfólios:
+Essas tags sÃ£o usadas para informaÃ§Ãµes sobre investimentos e portfÃ³lios:
 
-- **`<INVSTMTMSGSRSV1>`**: Seção para mensagens relacionadas a investimentos.
-- **`<INVSTMTTRNRS>`**: Encapsula a resposta da transação de investimento.
-- **`<INVSTMTRS>`**: Contém os detalhes de um extrato de investimentos.
-  - **`<DTSTART>`**: Data de início do período de transações.
-  - **`<DTEND>`**: Data de término do período de transações.
-  - **`<INVPOSLIST>`**: Lista de posições de investimento.
-    - **`<POSSTOCK>`**: Detalhes de uma posição em ações.
-    - **`<POSMF>`**: Detalhes de uma posição em fundos mútuos.
-    - **`<POSDEBT>`**: Detalhes de uma posição em títulos de dívida.
+- **`<INVSTMTMSGSRSV1>`**: SeÃ§Ã£o para mensagens relacionadas a investimentos.
+- **`<INVSTMTTRNRS>`**: Encapsula a resposta da transaÃ§Ã£o de investimento.
+- **`<INVSTMTRS>`**: ContÃ©m os detalhes de um extrato de investimentos.
+  - **`<DTSTART>`**: Data de inÃ­cio do perÃ­odo de transaÃ§Ãµes.
+  - **`<DTEND>`**: Data de tÃ©rmino do perÃ­odo de transaÃ§Ãµes.
+  - **`<INVPOSLIST>`**: Lista de posiÃ§Ãµes de investimento.
+    - **`<POSSTOCK>`**: Detalhes de uma posiÃ§Ã£o em aÃ§Ãµes.
+    - **`<POSMF>`**: Detalhes de uma posiÃ§Ã£o em fundos mÃºtuos.
+    - **`<POSDEBT>`**: Detalhes de uma posiÃ§Ã£o em tÃ­tulos de dÃ­vida.
 
 ---
 
 ## Outras Tags Comuns
-- **`<SIGNONMSGSRSV1>`**: Seção de mensagens de login e autenticação.
+- **`<SIGNONMSGSRSV1>`**: SeÃ§Ã£o de mensagens de login e autenticaÃ§Ã£o.
   - **`<SONRS>`**: Resposta de login.
-    - **`<STATUS>`**: Indica o status da solicitação (por exemplo, sucesso ou erro).
-      - **`<CODE>`**: Código de status.
+    - **`<STATUS>`**: Indica o status da solicitaÃ§Ã£o (por exemplo, sucesso ou erro).
+      - **`<CODE>`**: CÃ³digo de status.
       - **`<SEVERITY>`**: Severidade da mensagem (`INFO`, `ERROR`, etc.).
-- **`<SIGNONMSGSRQV1>`**: Usado para enviar informações de login ao servidor.
-  - **`<SONRQ>`**: Solicitação de login.
+- **`<SIGNONMSGSRQV1>`**: Usado para enviar informaÃ§Ãµes de login ao servidor.
+  - **`<SONRQ>`**: SolicitaÃ§Ã£o de login.
