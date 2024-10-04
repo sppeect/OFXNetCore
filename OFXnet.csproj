@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Title>OFXNet</Title>
+    <Authors>sppeect</Authors>
+    <Description>Leitor de Open Financial Exchange Files (OFX) para .NET 6 </Description>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sppeect/OFXnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="OFXnet.Test\**" />
+    <EmbeddedResource Remove="OFXnet.Test\**" />
+    <None Remove="OFXnet.Test\**" />
+  </ItemGroup>
+
+</Project>
