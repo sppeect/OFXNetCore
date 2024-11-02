@@ -1,3 +1,4 @@
+using OFXnet.Core.Domain.Transactions;
 using OFXnet.Core.Exceptions;
 using OFXnet.Domain;
 using OFXnet.Domain.Transactions;

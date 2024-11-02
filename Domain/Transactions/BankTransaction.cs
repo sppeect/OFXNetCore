@@ -1,7 +1,8 @@
-﻿using System;
+﻿using OFXnet.Domain.Transactions;
+using System;
 using System.Text.RegularExpressions;
 
-namespace OFXnet.Domain.Transactions
+namespace OFXnet.Core.Domain.Transactions
 {
     public class BankTransaction : Transaction
     {
@@ -30,6 +31,6 @@ namespace OFXnet.Domain.Transactions
             }
         }
 
-    
+
     }
 }
