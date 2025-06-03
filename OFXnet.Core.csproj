@@ -11,7 +11,7 @@
     <RepositoryUrl>https://github.com/sppeect/OFXnet</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.0.1</Version>
+    <Version>8.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
