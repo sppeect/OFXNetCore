@@ -87,6 +87,8 @@ namespace OFXnet.Core
             return result;
         }
 
+
+
         private static Extract GetExtractByXmlExported(XmlTextReader xmlTextReader, ParserSettings settings)
         {
             if (settings == null)
@@ -95,13 +97,16 @@ namespace OFXnet.Core
             string currentElement = string.Empty;
             Transaction currentTransaction = null;
 
-            // Variáveis utilizadas para ler o XML
             HeaderExtract header = new HeaderExtract();
             BankAccount bankAccount = new BankAccount();
             Extract extract = new Extract(header, bankAccount, "");
 
             bool hasHeader = false;
             bool hasAccountInfoData = false;
+            bool balanceSetFromBalamt = false;
+
+            DateTime? ledgerBalanceDate = null;
+            double? ledgerBalanceValue = null;
 
             try
             {
@@ -130,13 +135,7 @@ namespace OFXnet.Core
                         switch (currentElement)
                         {
                             case "CREDITCARDMSGSRSV1":
-                                // Inicializar a seção de cartão de crédito
-                                // Pode conter várias transações
-                                break;
-
                             case "INVSTMTMSGSRSV1":
-                                // Inicializar a seção de investimentos
-                                // Pode conter várias transações de investimento
                                 break;
 
                             case "STMTTRN":
@@ -157,7 +156,6 @@ namespace OFXnet.Core
                     {
                         switch (currentElement)
                         {
-                            // Informações de cabeçalho
                             case "DTSERVER":
                                 header.ServerDate = ConvertOfxDateToDateTime(xmlTextReader.Value, extract);
                                 hasHeader = true;
@@ -168,19 +166,12 @@ namespace OFXnet.Core
                                 break;
                             case "ORG":
                                 header.BankName = xmlTextReader.Value;
+                                bankAccount.Bank.Name = xmlTextReader.Value;
                                 hasHeader = true;
                                 break;
-
-                            // Informações de conta de cartão de crédito
                             case "CURDEF":
-                                if (currentTransaction is CreditCardTransaction creditTransaction)
-                                {
-                                    // Atribuir o valor da moeda para a transação de cartão de crédito
-                                    // currency = xmlTextReader.Value;
-                                }
+                                header.Currency = xmlTextReader.Value;
                                 break;
-
-                            // Informações de conta
                             case "BANKID":
                                 bankAccount.Bank = new Bank(TryGetBankId(xmlTextReader.Value, extract), "");
                                 hasAccountInfoData = true;
@@ -198,7 +189,6 @@ namespace OFXnet.Core
                                 hasAccountInfoData = true;
                                 break;
 
-                            // Detalhes da transação
                             case "TRNTYPE":
                                 currentTransaction.Type = xmlTextReader.Value;
                                 break;
@@ -206,7 +196,8 @@ namespace OFXnet.Core
                                 currentTransaction.Date = ConvertOfxDateToDateTime(xmlTextReader.Value, extract);
                                 break;
                             case "TRNAMT":
-                                currentTransaction.TransactionValue = GetTransactionValue(xmlTextReader.Value, extract, settings);
+                                double rawValue = GetTransactionValue(xmlTextReader.Value, extract, settings);
+                                currentTransaction.TransactionValue = AdjustTransactionValue(currentTransaction.Type, rawValue);
                                 break;
                             case "FITID":
                                 currentTransaction.Id = xmlTextReader.Value;
@@ -222,39 +213,48 @@ namespace OFXnet.Core
                                 extract.FinalDate = ConvertOfxDateToDateTime(xmlTextReader.Value, extract);
                                 break;
 
-                            // Campos específicos de transações bancárias
                             case "CHECKNUM":
                                 if (currentTransaction is BankTransaction bankTransaction)
-                                {
                                     bankTransaction.Checksum = Convert.ToInt64(xmlTextReader.Value);
-                                }
                                 break;
-
-                            // Campos específicos de transações de cartão de crédito
                             case "CARDNUM":
                                 if (currentTransaction is CreditCardTransaction creditCardTransaction)
-                                {
                                     creditCardTransaction.CardNumber = xmlTextReader.Value;
-                                }
                                 break;
-
-                            // Campos específicos de transações de investimentos
                             case "INVESTMENTTYPE":
                                 if (currentTransaction is InvestmentTransaction investmentTransaction)
-                                {
                                     investmentTransaction.InvestmentType = xmlTextReader.Value;
-                                }
                                 break;
                             case "QUANTITY":
                                 if (currentTransaction is InvestmentTransaction investmentTransactionQty)
-                                {
                                     investmentTransactionQty.Quantity = Convert.ToDouble(xmlTextReader.Value);
-                                }
                                 break;
                             case "PRICE":
                                 if (currentTransaction is InvestmentTransaction investmentTransactionPrice)
-                                {
                                     investmentTransactionPrice.Price = Convert.ToDouble(xmlTextReader.Value);
+                                break;
+
+                            case "DTASOF":
+                                ledgerBalanceDate = ConvertOfxDateToDateTime(xmlTextReader.Value, extract);
+                                break;
+
+                            case "BALAMT":
+                                ledgerBalanceValue = GetTransactionValue(xmlTextReader.Value, extract, settings);
+                                extract.FinalBalance = ledgerBalanceValue.Value;
+                                balanceSetFromBalamt = true;
+
+                                double totalTransactions = extract.Transactions?.Sum(t => t.TransactionValue) ?? 0;
+                                extract.InitialBalance = ledgerBalanceValue.Value - totalTransactions;
+
+                                if (!ledgerBalanceDate.HasValue || extract.FinalDate == DateTime.MinValue)
+                                {
+                                    extract.ImportingErrors.Add("[INFO] BALAMT found, but " +
+                                        $"{(ledgerBalanceDate == null ? "DTASOF" : "DTEND")} is missing.");
+                                }
+                                else if (ledgerBalanceDate.Value.Date != extract.FinalDate.Date)
+                                {
+                                    extract.ImportingErrors.Add($"[WARNING] BALAMT found, but DTASOF ({ledgerBalanceDate.Value:yyyy-MM-dd}) " +
+                                        $"differs from DTEND ({extract.FinalDate:yyyy-MM-dd}).");
                                 }
                                 break;
                         }
@@ -276,9 +276,17 @@ namespace OFXnet.Core
                 throw new OFXParserException("Invalid OFX file!");
             }
 
+            if (extract.Transactions?.Any() == true && !balanceSetFromBalamt)
+            {
+                double totalTransactions = extract.Transactions.Sum(t => t.TransactionValue);
+                extract.InitialBalance = 0;
+                extract.FinalBalance = totalTransactions;
+
+                extract.ImportingErrors.Add("[INFO] BALAMT not found. Assuming InitialBalance = 0 and calculating FinalBalance from transaction sum.");
+            }
+
             return extract;
         }
-
 
 
         /// <summary>
@@ -429,7 +437,7 @@ namespace OFXnet.Core
             if (int.TryParse(value, out int bankId))
                 return bankId;
 
-            extract.ImportingErrors.Add(string.Format(Constants.MESSAGE_BANK_ID_ISNT_NUMERIC_VALUE, value));
+            extract.ImportingErrors.Add(string.Format(Constants.MESSAGE_BANK_ID_ISNT_NUMERIC_VALUE , value));
             return 0;
         }
 
@@ -448,6 +456,27 @@ namespace OFXnet.Core
             }
             return 0;
         }
+        private static double AdjustTransactionValue(string trnType, double value)
+        {
+            switch (trnType?.ToUpperInvariant())
+            {
+                case "CREDIT":
+                case "DEPOSIT":
+                case "DIRECTDEP":
+                    return Math.Abs(value);
+
+                case "DEBIT":
+                case "PAYMENT":
+                case "ATM":
+                case "CHECK":
+                case "DIRECTDEBIT":
+                case "WITHDRAWAL":
+                    return -Math.Abs(value);
+                default:
+                    return value;
+            }
+        }
+
 
         #endregion
     }
